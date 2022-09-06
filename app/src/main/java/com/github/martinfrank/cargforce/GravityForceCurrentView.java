@@ -15,13 +15,16 @@ public class GravityForceCurrentView extends View {
     private float mWidth;
     private float mHeight;
 
+    private float xCenter;
+    private float yCenter;
+
     private float verticalValue;
     private float horizontalValue;
 
     private Drawable backGround;
-    private Paint verticalPaint = new Paint();
-    private Paint horizontalPaint = new Paint();
-    private Paint xyPaint = new Paint();
+    private final Paint verticalPaint = new Paint();
+    private final Paint horizontalPaint = new Paint();
+    private final Paint xyPaint = new Paint();
 
     public GravityForceCurrentView(Context context) {
         super(context);
@@ -46,19 +49,17 @@ public class GravityForceCurrentView extends View {
     private void init() {
         verticalPaint.setStrokeWidth(25f);
         verticalPaint.setColor(0xFFFF0000);
-        verticalPaint.setStrokeJoin(Paint.Join.ROUND);
+        verticalPaint.setStrokeCap(Paint.Cap.ROUND);
 
         horizontalPaint.setStrokeWidth(25f);
         horizontalPaint.setColor(0xFF0000FF);
-        horizontalPaint.setStrokeJoin(Paint.Join.ROUND);
+        horizontalPaint.setStrokeCap(Paint.Cap.ROUND);
 
         xyPaint.setStrokeWidth(25f);
         xyPaint.setColor(0xFFFF00FF);
-        xyPaint.setStrokeJoin(Paint.Join.ROUND);
+        xyPaint.setStrokeCap(Paint.Cap.ROUND);
 
         backGround = getResources().getDrawable(R.drawable.car_back_red_icon, null);
-
-//
     }
 
     @Override
@@ -66,7 +67,8 @@ public class GravityForceCurrentView extends View {
         super.onSizeChanged(newWidth, newHeight, oldWidth, oldHeight);
         this.mWidth = newWidth;
         this.mHeight = newHeight;
-
+        this.xCenter = mWidth / 2f;
+        this.yCenter = mHeight / 2f;
         updateBackgroundSize();
     }
 
@@ -84,21 +86,16 @@ public class GravityForceCurrentView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        backGround.draw(canvas);
-
-        float xCenter = mWidth / 2f;
-        float yCenter = mHeight / 2f;
-
         float verticalAcceleration = ((MainActivity.GRAVITY_ACCELERATION_ON_EARTH - verticalValue) / (MainActivity.GRAVITY_ACCELERATION_ON_EARTH * 2)) * yCenter;
         verticalAcceleration = yCenter - verticalAcceleration;
-        canvas.drawLine(xCenter, yCenter, xCenter, verticalAcceleration, verticalPaint);
 
         float horizontalAcceleration = (horizontalValue / (MainActivity.GRAVITY_ACCELERATION_ON_EARTH * 2)) * xCenter;
         horizontalAcceleration = xCenter - horizontalAcceleration;
-        canvas.drawLine(xCenter, yCenter, horizontalAcceleration, yCenter, horizontalPaint);
 
+        backGround.draw(canvas);
         canvas.drawLine(xCenter, yCenter, horizontalAcceleration, verticalAcceleration, xyPaint);
-
+        canvas.drawLine(xCenter, yCenter, xCenter, verticalAcceleration, verticalPaint);
+        canvas.drawLine(xCenter, yCenter, horizontalAcceleration, yCenter, horizontalPaint);
     }
 
     public void setValues(float verticalValue, float horizontalValue) {
@@ -106,9 +103,8 @@ public class GravityForceCurrentView extends View {
         this.horizontalValue = horizontalValue;
     }
 
-
     public void setBackGroundByDrawableId(int drawableId) {
         backGround = getResources().getDrawable(drawableId, null);
-        //backGround.setAlpha(128);
+        backGround.setAlpha(128);
     }
 }

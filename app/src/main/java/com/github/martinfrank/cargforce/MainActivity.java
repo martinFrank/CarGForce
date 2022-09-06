@@ -3,8 +3,8 @@ package com.github.martinfrank.cargforce;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.hardware.SensorManager;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity implements SensorDataConsumer {
 

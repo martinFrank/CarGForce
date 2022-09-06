@@ -10,15 +10,15 @@ import androidx.annotation.Nullable;
 public class GravityForceHistoryGraphView extends View {
     private float mWidth;
     private float mHeight;
-    private int ringBufferSize = 256;
-
-    private float[] horizontalBuffer = new float[ringBufferSize];
-    private float[] verticalBuffer = new float[ringBufferSize];
+    private float sliceWidth;
+    private float yCenter;
+    private final int ringBufferSize = 256;
+    private final float[] horizontalBuffer = new float[ringBufferSize];
+    private final float[] verticalBuffer = new float[ringBufferSize];
     private int ringIndex = 0;
-
-    private Paint verticalPaint = new Paint();
-    private Paint horizontalPaint = new Paint();
-    private Paint decoPaint = new Paint();
+    private final Paint verticalPaint = new Paint();
+    private final Paint horizontalPaint = new Paint();
+    private final Paint decoPaint = new Paint();
 
     public GravityForceHistoryGraphView(Context context) {
         super(context);
@@ -41,10 +41,10 @@ public class GravityForceHistoryGraphView extends View {
     }
 
     private void init() {
-        verticalPaint.setColor(0xFFFF0000);
+        verticalPaint.setColor(0x77FF0000);
         verticalPaint.setStyle(Paint.Style.FILL);
 
-        horizontalPaint.setColor(0xFF0000FF);
+        horizontalPaint.setColor(0x770000FF);
         horizontalPaint.setStyle(Paint.Style.FILL);
 
         decoPaint.setColor(0xFF000000);
@@ -57,32 +57,34 @@ public class GravityForceHistoryGraphView extends View {
         super.onSizeChanged(newWidth, newHeight, oldWidth, oldHeight);
         this.mWidth = newWidth;
         this.mHeight = newHeight;
+        this.sliceWidth = mWidth / ringBufferSize;
+        this.yCenter = mHeight / 2f;
+
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float sliceWidth = mWidth / ringBufferSize;
-        float yCenter = mHeight / 2f;
 
-        for(int i = 0; i < ringBufferSize; i ++){
+        for (int i = 0; i < ringBufferSize; i++) {
             float dx = horizontalBuffer[mapIndex(i)];
             float dy = verticalBuffer[mapIndex(i)];
 
+            float verticalValue = ((MainActivity.GRAVITY_ACCELERATION_ON_EARTH - dx) / MainActivity.GRAVITY_ACCELERATION_ON_EARTH) * yCenter;
+            verticalValue = yCenter - verticalValue;
 
-            float verticalValue = ((MainActivity.GRAVITY_ACCELERATION_ON_EARTH - dx) / MainActivity.GRAVITY_ACCELERATION_ON_EARTH ) * yCenter;
-            verticalValue = yCenter-verticalValue;
-            canvas.drawRect(i * sliceWidth, yCenter, (i+1)*sliceWidth, verticalValue, verticalPaint);
+            float horizontalValue = (dy / (MainActivity.GRAVITY_ACCELERATION_ON_EARTH)) * yCenter;
+            horizontalValue = yCenter - horizontalValue;
 
-            float horizontalValue = (dy / (MainActivity.GRAVITY_ACCELERATION_ON_EARTH) ) * yCenter;
-            horizontalValue = yCenter-horizontalValue;
-            canvas.drawRect(i * sliceWidth, yCenter, (i+1)*sliceWidth, horizontalValue, horizontalPaint);
+            canvas.drawRect(i * sliceWidth, yCenter, (i + 1) * sliceWidth, verticalValue, verticalPaint);
+            canvas.drawRect(i * sliceWidth, yCenter, (i + 1) * sliceWidth, horizontalValue, horizontalPaint);
         }
         canvas.drawLine(0, yCenter, mWidth, yCenter, decoPaint);
     }
-    private int mapIndex(int i){
+
+    private int mapIndex(int i) {
         int index = i + ringIndex;
-        if(index >= ringBufferSize){
+        if (index >= ringBufferSize) {
             index = index - ringBufferSize;
         }
         return index;
@@ -100,7 +102,7 @@ public class GravityForceHistoryGraphView extends View {
 
     private void moveRingIndex() {
         ringIndex = ringIndex + 1;
-        if(ringIndex == ringBufferSize){
+        if (ringIndex == ringBufferSize) {
             ringIndex = 0;
         }
     }
