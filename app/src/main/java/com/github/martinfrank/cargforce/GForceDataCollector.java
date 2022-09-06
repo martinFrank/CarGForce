@@ -38,4 +38,9 @@ public class GForceDataCollector implements SensorEventListener {
     public void onResume() {
         sensorManager.registerListener(this, gForceSensor, SensorManager.SENSOR_DELAY_UI);
     }
+
+    public void calibrate() {
+        //FIXME calculate angle and adjust value collection
+        //when device is installed, it has already an certain angle, we need to calibrate these values
+    }
 }

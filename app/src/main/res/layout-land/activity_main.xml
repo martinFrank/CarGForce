@@ -6,9 +6,32 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity">
 
-    <com.github.martinfrank.cargforce.GForceCurrentView
+    <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/gforceView" />
+            android:layout_height="match_parent" android:layout_weight="1">
+        <com.github.martinfrank.cargforce.GravityForceCurrentView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/back_g_force_current_view" android:layout_weight="1"/>
+        <com.github.martinfrank.cargforce.GravityForceHistoryGraphView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/back_g_force_history_view" android:layout_weight="7"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:layout_weight="1">
+        <com.github.martinfrank.cargforce.GravityForceCurrentView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/side_g_force_current_view" android:layout_weight="1"/>
+        <com.github.martinfrank.cargforce.GravityForceHistoryGraphView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/side_g_force_history_view" android:layout_weight="7"/>
+    </LinearLayout>
 
 </LinearLayout>

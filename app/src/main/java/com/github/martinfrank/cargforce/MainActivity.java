@@ -1,15 +1,20 @@
 package com.github.martinfrank.cargforce;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.hardware.SensorManager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity implements SensorDataConsumer {
 
-    private static final String LOG_TAG = "MainActivity";
+    public static final float GRAVITY_ACCELERATION_ON_EARTH = 9.80665f;
     private GForceDataCollector gForceDataCollector;
-    private GForceCurrentView gForceCurrentView;
+    private GravityForceCurrentView backGravityForceCurrentView;
+    private GravityForceCurrentView sideGravityForceCurrentView;
+    private GravityForceHistoryGraphView backGravityForceHistoryGraphView;
+    private GravityForceHistoryGraphView sideGravityForceHistoryGraphView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +24,12 @@ public class MainActivity extends AppCompatActivity implements SensorDataConsume
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         gForceDataCollector = new GForceDataCollector(sensorManager, this);
 
-        gForceCurrentView = findViewById(R.id.gforceView);
+        backGravityForceCurrentView = findViewById(R.id.back_g_force_current_view);
+        backGravityForceCurrentView.setBackGroundByDrawableId(R.drawable.car_back_red_icon);
+        sideGravityForceCurrentView = findViewById(R.id.side_g_force_current_view);
+        backGravityForceCurrentView.setBackGroundByDrawableId(R.drawable.car_left_red_icon);
+        backGravityForceHistoryGraphView = findViewById(R.id.back_g_force_history_view);
+        sideGravityForceHistoryGraphView = findViewById(R.id.side_g_force_history_view);
     }
 
     @Override
@@ -36,9 +46,24 @@ public class MainActivity extends AppCompatActivity implements SensorDataConsume
 
     @Override
     public void updateData(SensorData sensorData) {
-//        Log.d(LOG_TAG, "updateGui: gravityForceData: "+ sensorData.toString());
-        gForceCurrentView.setValues(sensorData.gravityDx, sensorData.gravityDy);
-        gForceCurrentView.invalidate();
+        if (Configuration.ORIENTATION_PORTRAIT == getResources().getConfiguration().orientation) {
+            backGravityForceCurrentView.setValues(sensorData.gravityDy, sensorData.gravityDz);
+            sideGravityForceCurrentView.setValues(sensorData.gravityDy, sensorData.gravityDx);
+            backGravityForceHistoryGraphView.setValues(sensorData.gravityDy, sensorData.gravityDz);
+            sideGravityForceHistoryGraphView.setValues(sensorData.gravityDy, sensorData.gravityDx);
+        } else {
+            backGravityForceCurrentView.setValues(sensorData.gravityDx, sensorData.gravityDz);
+            sideGravityForceCurrentView.setValues(sensorData.gravityDx, sensorData.gravityDy);
+            backGravityForceHistoryGraphView.setValues(sensorData.gravityDx, sensorData.gravityDz);
+            sideGravityForceHistoryGraphView.setValues(sensorData.gravityDx, sensorData.gravityDy);
+        }
+        backGravityForceCurrentView.invalidate();
+        sideGravityForceCurrentView.invalidate();
+        backGravityForceHistoryGraphView.invalidate();
+        sideGravityForceHistoryGraphView.invalidate();
+    }
 
+    public void calibrate(){
+        gForceDataCollector.calibrate();
     }
 }
