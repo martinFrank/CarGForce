@@ -9,13 +9,11 @@ import androidx.annotation.Nullable;
 
 public class GravityForceHistoryGraphView extends View {
     private float mWidth;
-    private float mHeight;
     private float sliceWidth;
     private float yCenter;
     private final int ringBufferSize = 256;
-    private final float[] horizontalBuffer = new float[ringBufferSize];
-    private final float[] verticalBuffer = new float[ringBufferSize];
-    private int ringIndex = 0;
+    private final RingBuffer<Float> horizontalRingBuffer = new RingBuffer<>(ringBufferSize);
+    private final RingBuffer<Float> verticalRingBuffer = new RingBuffer<>(ringBufferSize);
     private final Paint verticalPaint = new Paint();
     private final Paint horizontalPaint = new Paint();
     private final Paint decoPaint = new Paint();
@@ -56,10 +54,8 @@ public class GravityForceHistoryGraphView extends View {
     protected void onSizeChanged(int newWidth, int newHeight, int oldWidth, int oldHeight) {
         super.onSizeChanged(newWidth, newHeight, oldWidth, oldHeight);
         this.mWidth = newWidth;
-        this.mHeight = newHeight;
         this.sliceWidth = mWidth / ringBufferSize;
-        this.yCenter = mHeight / 2f;
-
+        this.yCenter = newHeight / 2f;
     }
 
     @Override
@@ -67,8 +63,8 @@ public class GravityForceHistoryGraphView extends View {
         super.onDraw(canvas);
 
         for (int i = 0; i < ringBufferSize; i++) {
-            float dx = horizontalBuffer[mapIndex(i)];
-            float dy = verticalBuffer[mapIndex(i)];
+            float dx = getFloat(i, horizontalRingBuffer, MainActivity.GRAVITY_ACCELERATION_ON_EARTH);
+            float dy = getFloat(i, verticalRingBuffer, 0);
 
             float verticalValue = ((MainActivity.GRAVITY_ACCELERATION_ON_EARTH - dx) / MainActivity.GRAVITY_ACCELERATION_ON_EARTH) * yCenter;
             verticalValue = yCenter - verticalValue;
@@ -82,28 +78,14 @@ public class GravityForceHistoryGraphView extends View {
         canvas.drawLine(0, yCenter, mWidth, yCenter, decoPaint);
     }
 
-    private int mapIndex(int i) {
-        int index = i + ringIndex;
-        if (index >= ringBufferSize) {
-            index = index - ringBufferSize;
-        }
-        return index;
+    private float getFloat(int i, RingBuffer<Float> buffer, float defaultValue) {
+        Float value = buffer.get(i);
+        return value == null ? defaultValue : value;
     }
 
     public void setValues(float gravityDx, float gravityDy) {
-        moveRingIndex();
-        updateValues(gravityDx, gravityDy);
+        horizontalRingBuffer.add(gravityDx);
+        verticalRingBuffer.add(gravityDy);
     }
 
-    private void updateValues(float gravityDx, float gravityDy) {
-        horizontalBuffer[ringIndex] = gravityDx;
-        verticalBuffer[ringIndex] = gravityDy;
-    }
-
-    private void moveRingIndex() {
-        ringIndex = ringIndex + 1;
-        if (ringIndex == ringBufferSize) {
-            ringIndex = 0;
-        }
-    }
 }
